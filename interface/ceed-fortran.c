@@ -262,19 +262,20 @@ CEED_EXTERN void fCeedElemRestrictionCreateOriented(int *ceed, int *nelements, i
 
 #define fCeedElemRestrictionCreateCurlOriented FORTRAN_NAME(ceedelemrestrictioncreatecurloriented, CEEDELEMRESTRICTIONCREATECURLORIENTED)
 CEED_EXTERN void fCeedElemRestrictionCreateCurlOriented(int *ceed, int *nelements, int *esize, int *num_comp, int *comp_stride, int *lsize,
-                                                        int *memtype, int *copymode, const int *offsets, const int *curlorients, int *elemrestriction,
-                                                        int *err) {
+                                                        int *memtype, int *copymode, const int *offsets, const char *curlorients,
+                                                        const char *curlorientst, int *elemrestriction, int *err) {
   if (CeedElemRestriction_count == CeedElemRestriction_count_max) {
     CeedElemRestriction_count_max += CeedElemRestriction_count_max / 2 + 1;
     CeedRealloc(CeedElemRestriction_count_max, &CeedElemRestriction_dict);
   }
 
-  const int *offsets_     = offsets;
-  const int *curlorients_ = curlorients;
+  const int  *offsets_      = offsets;
+  const char *curlorients_  = curlorients;
+  const char *curlorientst_ = curlorientst;
 
   CeedElemRestriction *elemrestriction_ = &CeedElemRestriction_dict[CeedElemRestriction_count];
   *err = CeedElemRestrictionCreateCurlOriented(Ceed_dict[*ceed], *nelements, *esize, *num_comp, *comp_stride, *lsize, (CeedMemType)*memtype,
-                                               (CeedCopyMode)*copymode, offsets_, curlorients_, elemrestriction_);
+                                               (CeedCopyMode)*copymode, offsets_, curlorients_, curlorientst_, elemrestriction_);
 
   if (*err == 0) {
     *elemrestriction = CeedElemRestriction_count++;
@@ -344,19 +345,21 @@ CEED_EXTERN void fCeedElemRestrictionCreateBlockedOriented(int *ceed, int *nelem
 #define fCeedElemRestrictionCreateBlockedCurlOriented \
   FORTRAN_NAME(ceedelemrestrictioncreateblockedcurloriented, CEEDELEMRESTRICTIONCREATEBLOCKEDCURLORIENTED)
 CEED_EXTERN void fCeedElemRestrictionCreateBlockedCurlOriented(int *ceed, int *nelements, int *esize, int *blocksize, int *num_comp, int *comp_stride,
-                                                               int *lsize, int *memtype, int *copymode, const int *offsets, const int *curlorients,
-                                                               int *elemrestriction, int *err) {
+                                                               int *lsize, int *memtype, int *copymode, const int *offsets, const char *curlorients,
+                                                               const char *curlorientst, int *elemrestriction, int *err) {
   if (CeedElemRestriction_count == CeedElemRestriction_count_max) {
     CeedElemRestriction_count_max += CeedElemRestriction_count_max / 2 + 1;
     CeedRealloc(CeedElemRestriction_count_max, &CeedElemRestriction_dict);
   }
 
-  const int *offsets_     = offsets;
-  const int *curlorients_ = curlorients;
+  const int  *offsets_      = offsets;
+  const char *curlorients_  = curlorients;
+  const char *curlorientst_ = curlorientst;
 
   CeedElemRestriction *elemrestriction_ = &CeedElemRestriction_dict[CeedElemRestriction_count];
   *err = CeedElemRestrictionCreateBlockedCurlOriented(Ceed_dict[*ceed], *nelements, *esize, *blocksize, *num_comp, *comp_stride, *lsize,
-                                                      (CeedMemType)*memtype, (CeedCopyMode)*copymode, offsets_, curlorients_, elemrestriction_);
+                                                      (CeedMemType)*memtype, (CeedCopyMode)*copymode, offsets_, curlorients_, curlorientst_,
+                                                      elemrestriction_);
 
   if (*err == 0) {
     *elemrestriction = CeedElemRestriction_count++;

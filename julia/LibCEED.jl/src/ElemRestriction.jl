@@ -196,10 +196,19 @@ Create an curl-oriented `CeedElemRestriction`.
                  the offsets (into the input [`CeedVector`](@ref)) for the unknowns
                  corresponding to element $i$, where $0 \leq i < \textit{nelem}$. All
                  offsets must be in the range $[0, \textit{lsize} - 1]$.
-- `curlorients`: Array of shape `(3 * elemsize, nelem)` representing a row-major tridiagonal
-                 matrix (`curlorients[0, i] = curlorients[3 * elemsize - 1, i] = 0`, where
-                 $0 \leq i < \textit{nelem}$) which is applied to the element unknowns upon
-                 restriction.
+- `curlorients`: Array of shape `(elemsize, nelem)` representing a row-major tridiagonal
+                 matrix with entries `\{-1, 0, 1\}` which is applied to the element unknowns
+                 upon restriction. The entries are characters in the range of 'a'-'n', where
+                 the character for a given node in an element describes the nonzeros of the
+                 corresponding row of the transformation matrix. The mapping is as follows:
+                 `'a': {0, 1, 0}` (identity), `'b': {0, 1, 0}` (orientation flip), `'c':
+                 {1, 0, 0}`, `'d': {-1, 0, 0}`, `'e': {0, 0, 1}`, `'f': {0, 0, -1}`, `'g':
+                 {1, 1, 0}`, `'h': {1, -1, 0}`, `'i': {-1, 1, 0}`, `'j': {-1, -1, 0}`, `'k':
+                 {0, 1, 1}`, `'l': {0, 1, -1}`, `'m': {0, -1, 1}`, `'n': {0, -1, -1}`. This
+                 orientation matrix allows for pairs of face degrees of freedom on elements
+                 for H(curl) spaces to be coupled in the element restriction operation,
+                 which is a way to resolve face orientation issues for 3D meshes
+                 (https://dl.acm.org/doi/pdf/10.1145/3524456).
 - `mtype`:       Memory type of the `offsets` array, see [`MemType`](@ref)
 - `cmode`:       Copy mode for the `offsets` array, see [`CopyMode`](@ref)
 """
@@ -211,7 +220,7 @@ function create_elem_restriction_curl_oriented(
     compstride,
     lsize,
     offsets::AbstractArray{CeedInt},
-    curlorients::AbstractArray{CeedInt};
+    curlorients::AbstractArray{Char};
     mtype::MemType=MEM_HOST,
     cmode::CopyMode=COPY_VALUES,
 )

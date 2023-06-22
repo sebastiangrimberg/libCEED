@@ -244,7 +244,7 @@ impl<'a> ElemRestriction<'a> {
         lsize: usize,
         mtype: crate::MemType,
         offsets: &[i32],
-        curlorients: &[i32],
+        curlorients: &[char],
     ) -> crate::Result<Self> {
         let mut ptr = std::ptr::null_mut();
         let (nelem, elemsize, ncomp, compstride, lsize, mtype) = (

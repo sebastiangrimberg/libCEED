@@ -84,22 +84,17 @@ include("buildmats.jl")
             end
         end
 
-        curlorients = Array{CeedInt}(undef, 3*elemsize, nelem)
+        curlorients = Array{CeedInt}(undef, elemsize, nelem)
         for i = 1:nelem
-            curlorients[1, i] = curlorients[6, i] = 0
             if (i - 1)%2 > 0
                 # T = [0  -1]
                 #     [-1  0]
-                curlorients[2, i] = 0
-                curlorients[3, i] = -1
-                curlorients[4, i] = -1
-                curlorients[5, i] = 0
+                curlorients[1, i] = 'f'
+                curlorients[2, i] = 'd'
             else
                 # T = I
-                curlorients[2, i] = 1
-                curlorients[3, i] = 0
-                curlorients[4, i] = 0
-                curlorients[5, i] = 1
+                curlorients[1, i] = 'a'
+                curlorients[2, i] = 'a'
             end
         end
         r = create_elem_restriction_curl_oriented(

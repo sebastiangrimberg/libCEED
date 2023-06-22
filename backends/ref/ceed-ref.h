@@ -29,8 +29,10 @@ typedef struct {
   CeedInt       *offsets_allocated;
   const bool    *orients; /* Orientation, if it exists, is true when the dof must be flipped */
   bool          *orients_allocated;
-  const CeedInt *curl_orients; /* Tridiagonal matrix (row-major) for a general transformation during restriction */
-  CeedInt       *curl_orients_allocated;
+  const char    *curl_orients; /* Tridiagonal matrix (row-major) for a general transformation during restriction */
+  char          *curl_orients_allocated;
+  const char    *curl_orients_t; /* Transpose of curl-conforming orientations matrix */
+  char          *curl_orients_t_allocated;
   int (*Apply)(CeedElemRestriction, CeedInt, CeedInt, CeedInt, CeedInt, CeedInt, bool, CeedTransposeMode, CeedVector, CeedVector, CeedRequest *);
 } CeedElemRestriction_Ref;
 
@@ -61,7 +63,7 @@ typedef struct {
 CEED_INTERN int CeedVectorCreate_Ref(CeedSize n, CeedVector vec);
 
 CEED_INTERN int CeedElemRestrictionCreate_Ref(CeedMemType mem_type, CeedCopyMode copy_mode, const CeedInt *offsets, const bool *orients,
-                                              const CeedInt *curl_orients, CeedElemRestriction r);
+                                              const char *curl_orients, const char *curl_orients_t, CeedElemRestriction r);
 
 CEED_INTERN int CeedBasisCreateTensorH1_Ref(CeedInt dim, CeedInt P_1d, CeedInt Q_1d, const CeedScalar *interp_1d, const CeedScalar *grad_1d,
                                             const CeedScalar *q_ref_1d, const CeedScalar *q_weight_1d, CeedBasis basis);

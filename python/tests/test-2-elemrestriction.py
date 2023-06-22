@@ -311,24 +311,19 @@ def test_214(ceed_resource):
     x.set_array(a, cmode=libceed.USE_POINTER)
 
     ind = np.zeros(2 * num_elem, dtype="int32")
-    curl_orients = np.zeros(3 * 2 * num_elem, dtype="int32")
+    curl_orients = np.zeros(2 * num_elem, dtype="int32")
     for i in range(num_elem):
         ind[2 * i + 0] = i
         ind[2 * i + 1] = i + 1
-        curl_orients[3 * 2 * i] = curl_orients[3 * 2 * (i + 1) - 1] = 0
         if i % 2 > 0:
             # T = [0  -1]
             #     [-1  0]
-            curl_orients[3 * 2 * i + 1] = 0
-            curl_orients[3 * 2 * i + 2] = -1
-            curl_orients[3 * 2 * i + 3] = -1
-            curl_orients[3 * 2 * i + 4] = 0
+            curl_orients[2 * i + 0] = 'f'
+            curl_orients[2 * i + 1] = 'd'
         else:
             # T = I
-            curl_orients[3 * 2 * i + 1] = 1
-            curl_orients[3 * 2 * i + 2] = 0
-            curl_orients[3 * 2 * i + 3] = 0
-            curl_orients[3 * 2 * i + 4] = 1
+            curl_orients[2 * i + 0] = 'a'
+            curl_orients[2 * i + 1] = 'a'
     r = ceed.CurlOrientedElemRestriction(
         num_elem,
         2,

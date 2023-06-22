@@ -10,7 +10,8 @@ int main(int argc, char **argv) {
   CeedVector          x, y;
   CeedInt             num_elem = 6, elem_size = 2;
   CeedInt             num_blk = 2, blk_size = 4;
-  CeedInt             ind[elem_size * num_elem], curl_orients[3 * elem_size * num_elem];
+  CeedInt             ind[elem_size * num_elem];
+  char                curl_orients[elem_size * num_elem];
   CeedScalar          x_array[num_elem + 1];
   CeedInt             layout[3];
   CeedElemRestriction elem_restriction;
@@ -23,26 +24,21 @@ int main(int argc, char **argv) {
   CeedVectorCreate(ceed, num_blk * blk_size * elem_size, &y);
 
   for (CeedInt i = 0; i < num_elem; i++) {
-    ind[2 * i + 0]          = i;
-    ind[2 * i + 1]          = i + 1;
-    curl_orients[3 * 2 * i] = curl_orients[3 * 2 * (i + 1) - 1] = 0;
+    ind[2 * i + 0] = i;
+    ind[2 * i + 1] = i + 1;
     if (i % 2 > 0) {
       // T = [0  -1]
       //     [-1  0]
-      curl_orients[3 * 2 * i + 1] = 0;
-      curl_orients[3 * 2 * i + 2] = -1;
-      curl_orients[3 * 2 * i + 3] = -1;
-      curl_orients[3 * 2 * i + 4] = 0;
+      curl_orients[2 * i + 0] = 'f';
+      curl_orients[2 * i + 1] = 'd';
     } else {
       // T = I
-      curl_orients[3 * 2 * i + 1] = 1;
-      curl_orients[3 * 2 * i + 2] = 0;
-      curl_orients[3 * 2 * i + 3] = 0;
-      curl_orients[3 * 2 * i + 4] = 1;
+      curl_orients[2 * i + 0] = 'a';
+      curl_orients[2 * i + 1] = 'a';
     }
   }
   CeedElemRestrictionCreateBlockedCurlOriented(ceed, num_elem, elem_size, blk_size, 1, 1, num_elem + 1, CEED_MEM_HOST, CEED_USE_POINTER, ind,
-                                               curl_orients, &elem_restriction);
+                                               curl_orients, curl_orients, &elem_restriction);
 
   // NoTranspose
   CeedElemRestrictionApply(elem_restriction, CEED_NOTRANSPOSE, x, y, CEED_REQUEST_IMMEDIATE);

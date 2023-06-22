@@ -540,11 +540,27 @@ impl Ceed {
     ///                     for the unknowns corresponding to element `i`, where
     ///                     `0 <= i < nelem`. All offsets must be in the range
     ///                     `[0, lsize - 1]`.
-    /// * `curlorients` - Array of shape `[nelem, 3 * elemsize]`. Row `i` holds
-    ///                     a row-major tridiagonal matrix (`curlorients[i, 0] =
-    ///                     curlorients[i, 3 * elemsize - 1] = 0`, where
-    ///                     `0 <= i < nelem`) which is applied to the element
-    ///                     unknowns upon restriction.
+    /// * `curlorients` - Array of shape `[nelem, elemsize]`. Row `i` holds
+    ///                     a row-major tridiagonal matrix with entries
+    ///                     `\{-1, 0, 1\}` which is applied to the element
+    ///                     unknowns upon restriction. The entries are
+    ///                     characters in the range of 'a'-'n', where the
+    ///                     character for a given node in an element describes
+    ///                     the nonzeros of the corresponding row of the
+    ///                     transformation matrix. The mapping is as follows:
+    ///                     `'a': {0, 1, 0}` (identity), `'b': {0, 1, 0}`
+    ///                     (orientation flip), `'c': {1, 0, 0}`,
+    ///                     `'d': {-1, 0, 0}`, `'e': {0, 0, 1}`,
+    ///                     `'f': {0, 0, -1}`, `'g': {1, 1, 0}`,
+    ///                     `'h': {1, -1, 0}`, `'i': {-1, 1, 0}`,
+    ///                     `'j': {-1, -1, 0}`, `'k': {0, 1, 1}`,
+    ///                     `'l': {0, 1, -1}`, `'m': {0, -1, 1}`,
+    ///                     `'n': {0, -1, -1}`. This orientation matrix allows
+    ///                     for pairs of face degrees of freedom on elements
+    ///                     for H(curl) spaces to be coupled in the element
+    ///                     restriction operation, which is a way to resolve
+    ///                     face orientation issues for 3D meshes
+    ///                     (https://dl.acm.org/doi/pdf/10.1145/3524456).
     ///
     /// ```
     /// # use libceed::prelude::*;
@@ -552,25 +568,19 @@ impl Ceed {
     /// # let ceed = libceed::Ceed::default_init();
     /// let nelem = 3;
     /// let mut ind: Vec<i32> = vec![0; 2 * nelem];
-    /// let mut curlorients: Vec<i32> = vec![0; 3 * 2 * nelem];
+    /// let mut curlorients: Vec<char> = vec![0; 2 * nelem];
     /// for i in 0..nelem {
     ///     ind[2 * i + 0] = i as i32;
     ///     ind[2 * i + 1] = (i + 1) as i32;
-    ///     curlorients[3 * 2 * i] = 0;
-    ///     curlorients[3 * 2 * (i + 1) - 1] = 0;
     ///     if (i % 2 > 0) {
     ///         // T = [0  -1]
     ///         //     [-1  0]
-    ///         curlorients[3 * 2 * i + 1] = 0;
-    ///         curlorients[3 * 2 * i + 2] = -1;
-    ///         curlorients[3 * 2 * i + 3] = -1;
-    ///         curlorients[3 * 2 * i + 4] = 0;
+    ///         curlorients[2 * i + 0] = 'f';
+    ///         curlorients[2 * i + 1] = 'd';
     ///     } else {
     ///         // T = I
-    ///         curlorients[3 * 2 * i + 1] = 1;
-    ///         curlorients[3 * 2 * i + 2] = 0;
-    ///         curlorients[3 * 2 * i + 3] = 0;
-    ///         curlorients[3 * 2 * i + 4] = 1;
+    ///         curlorients[2 * i + 0] = 'a';
+    ///         curlorients[2 * i + 1] = 'a';
     ///     }
     /// }
     /// let r = ceed.curl_oriented_elem_restriction(
